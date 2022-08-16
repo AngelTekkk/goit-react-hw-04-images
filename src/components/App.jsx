@@ -19,6 +19,28 @@ export function App() {
   const [modal, setModal] = useState({ src: '', alt: '', isOpen: false });
 
   useEffect(() => {
+    const fetchImages = async (searchQuery, perPage, currentPage) => {
+      try {
+        const imagesData = await PixabayAPI(searchQuery, currentPage, perPage);
+        if (currentPage === 1) {
+          setImagesData(imagesData.data.hits);
+          setIsMoreImages(imagesData.data.totalHits / perPage);
+          window.scrollTo({
+            top: 0,
+          });
+        } else {
+          setImagesData(prevState => [...prevState, ...imagesData.data.hits]);
+          setTimeout(() => {
+            addSmoothScroll();
+          }, 100);
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchImages(searchQuery, perPage, currentPage);
     if (currentPage !== 1) {
     }
@@ -40,28 +62,6 @@ export function App() {
 
   const handleCloseModal = () => {
     setModal({ src: '', alt: '', isOpen: false });
-  };
-
-  const fetchImages = async (searchQuery, perPage, currentPage) => {
-    try {
-      const imagesData = await PixabayAPI(searchQuery, currentPage, perPage);
-      if (currentPage === 1) {
-        setImagesData(imagesData.data.hits);
-        setIsMoreImages(imagesData.data.totalHits / perPage);
-        window.scrollTo({
-          top: 0,
-        });
-      } else {
-        setImagesData(prevState => [...prevState, ...imagesData.data.hits]);
-        setTimeout(() => {
-          addSmoothScroll();
-        }, 100);
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const addSmoothScroll = () => {
